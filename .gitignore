@@ -106,3 +106,4 @@ venv.bak/
 # archivos grandes
 gdb9.sdf.csv
 gdb9.sdf
+gdb9_9nodes.sparsedataset
