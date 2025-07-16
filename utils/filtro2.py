@@ -1,9 +1,13 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import os
 import pickle
 import pandas as pd
 from rdkit import Chem
+from rdkit.Chem import AllChem
 
-# Configuration: activate/deactivate filters and set parameters
+# Configuración de filtros
 CONFIG = {
     'filter_zero_formal_charge': True,
     'filter_num_atoms': True,
@@ -19,147 +23,168 @@ CONFIG = {
     'filter_no_linear_alkanes': True
 }
 
-# SMARTS pattern for linear C–C alkane bonds
+# SMARTS para enlaces lineales C–C no cíclicos ni aromáticos
 ALKANE_PATTERN = Chem.MolFromSmarts('[C;!R;!a]-[C;!R;!a]')
 
 
-def load_smiles_from_json(path):
+def load_data(path):
+    """
+    Carga df_62k.json y retorna listas paralelas de SMILES y bloques XYZ.
+    """
     df = pd.read_json(path, orient='split')
-    df = df[['canonical_smiles']].rename(columns={'canonical_smiles': 'smiles'})
-    df['smiles'] = (
-        df['smiles']
-        .astype(str)
-        .str.strip()
-        .str.replace(r'[\t\n\r]+', '', regex=True)
-    )
-    df = df[df['smiles'].notna() & (df['smiles'] != '')]
-    return df['smiles'].tolist()
+    df = df[['canonical_smiles', 'xyz_pbe_relaxed']].dropna(subset=['canonical_smiles', 'xyz_pbe_relaxed'])
+    # Limpieza
+    df['canonical_smiles'] = df['canonical_smiles'].astype(str).str.strip()
+    df['xyz_pbe_relaxed'] = df['xyz_pbe_relaxed'].astype(str).str.strip().replace(r'[\t\r]+', '', regex=True)
+    print(f"[DEBUG] Filas con SMILES y XYZ: {len(df)}")
+    return df['canonical_smiles'].tolist(), df['xyz_pbe_relaxed'].tolist()
 
 
-def to_molecules(smiles_list):
-    return [Chem.MolFromSmiles(smi) for smi in smiles_list if Chem.MolFromSmiles(smi) is not None]
+def embed_xyz_on_mol(mol, xyz_block):
+    """
+    Asigna las coordenadas de xyz_block a un conformer de mol creado a partir de SMILES.
+    """
+    lines = xyz_block.splitlines()
+    try:
+        n = int(lines[0])
+        coords = []
+        for line in lines[2:2 + n]:
+            parts = line.split()
+            if len(parts) >= 4:
+                x, y, z = map(float, parts[1:4])
+                coords.append((x, y, z))
+        if len(coords) != mol.GetNumAtoms():
+            AllChem.EmbedMolecule(mol, randomSeed=42)
+        else:
+            conf = Chem.Conformer(len(coords))
+            for i, (x, y, z) in enumerate(coords):
+                conf.SetAtomPosition(i, Chem.Geometry.Point3D(x, y, z))
+            mol.AddConformer(conf, assignId=True)
+    except Exception:
+        AllChem.EmbedMolecule(mol, randomSeed=42)
+    return mol
 
+# Filtros
+def filter_zero_formal_charge(mols): return [m for m in mols if all(a.GetFormalCharge() == 0 for a in m.GetAtoms())]
 
-def filter_zero_formal_charge(mols):
-    return [m for m in mols if all(atom.GetFormalCharge() == 0 for atom in m.GetAtoms())]
+def filter_num_atoms(mols, lo, hi): return [m for m in mols if lo <= m.GetNumAtoms() <= hi]
 
-def filter_num_atoms(mols, min_atoms, max_atoms):
-    return [m for m in mols if min_atoms < m.GetNumAtoms() < max_atoms]
+def filter_allowed_atoms(mols, allowed): return [m for m in mols if all(a.GetSymbol() in allowed for a in m.GetAtoms())]
 
-def filter_allowed_atoms(mols, allowed):
-    return [m for m in mols if all(atom.GetSymbol() in allowed for atom in m.GetAtoms())]
+def filter_aromatic_atom(mols): return [m for m in mols if any(a.GetIsAromatic() for a in m.GetAtoms())]
 
-def filter_aromatic_atom(mols):
-    return [m for m in mols if any(atom.GetIsAromatic() for atom in m.GetAtoms())]
-
-def filter_ring_sizes(mols, allowed_sizes):
-    return [m for m in mols if m.GetRingInfo().AtomRings() and all(len(r) in allowed_sizes for r in m.GetRingInfo().AtomRings())]
+def filter_ring_sizes(mols, sizes):
+    out = []
+    for m in mols:
+        rings = m.GetRingInfo().AtomRings()
+        if rings and all(len(r) in sizes for r in rings):
+            out.append(m)
+    return out
 
 def filter_fused_rings(mols):
-    filtered = []
+    out = []
     for m in mols:
         rings = m.GetRingInfo().AtomRings()
         if len(rings) <= 1:
-            filtered.append(m)
+            out.append(m)
         else:
-            total = sum(len(r) for r in rings)
-            unique = len({a for ring in rings for a in ring})
-            if total > unique:
-                filtered.append(m)
-    return filtered
+            tot = sum(len(r) for r in rings)
+            uniq = len({idx for r in rings for idx in r})
+            if tot > uniq:
+                out.append(m)
+    return out
 
 def filter_aromatic_rings(mols):
-    """
-    Conserva solo moléculas cuyas **todas** los anillos sean completamente aromáticos.
-    """
-    filtered = []
+    out = []
     for m in mols:
         rings = m.GetRingInfo().AtomRings()
-        # Descarta moléculas sin anillos
         if not rings:
             continue
-        # Verificar que todos los anillos sean aromáticos en átomos y enlaces
-        all_rings_aromatic = True
+        ok = True
         for ring in rings:
-            # todos los átomos aromáticos
-            if not all(m.GetAtomWithIdx(idx).GetIsAromatic() for idx in ring):
-                all_rings_aromatic = False
+            if not all(m.GetAtomWithIdx(i).GetIsAromatic() for i in ring):
+                ok = False
                 break
-            # todos los enlaces aromáticos
             for i in range(len(ring)):
-                a1, a2 = ring[i], ring[(i+1) % len(ring)]
-                bond = m.GetBondBetweenAtoms(a1, a2)
-                if not bond.GetIsAromatic():
-                    all_rings_aromatic = False
+                b = m.GetBondBetweenAtoms(ring[i], ring[(i + 1) % len(ring)])
+                if not b.GetIsAromatic():
+                    ok = False
                     break
-            if not all_rings_aromatic:
+            if not ok:
                 break
-        if all_rings_aromatic:
-            filtered.append(m)
-    return filtered
+        if ok:
+            out.append(m)
+    return out
 
-def filter_no_linear_alkanes(mols):
-    return [m for m in mols if not m.HasSubstructMatch(ALKANE_PATTERN)]
+def filter_no_linear_alkanes(mols): return [m for m in mols if not m.HasSubstructMatch(ALKANE_PATTERN)]
 
+class XYZFilteredDataset:
+    def __init__(self, smiles_list, xyz_list):
+        self.raw_smiles = smiles_list
+        self.raw_xyz = xyz_list
+        self.mols = []
+        for smi, xyz in zip(smiles_list, xyz_list):
+            mol = Chem.MolFromSmiles(smi)
+            if mol:
+                mol = Chem.AddHs(mol)
+                mol = embed_xyz_on_mol(mol, xyz)
+                Chem.SanitizeMol(mol)
+                self.mols.append(mol)
+        print(f"[DEBUG] Moléculas tras carga inicial: {len(self.mols)}")
+        self.xyz_blocks = []
 
-class FilteredDataset:
-    def __init__(self, smiles_list):
-        self.mols = to_molecules(smiles_list)
-        print(f"[DEBUG] Molecules loaded: {len(self.mols)}")
-
-    def apply_filters(self, config):
-        # List of filters in order applied, with names
-        filters = [
-            ('zero formal charge', filter_zero_formal_charge, 'filter_zero_formal_charge'),
-            ('number of atoms', lambda ms: filter_num_atoms(ms, config['min_atoms'], config['max_atoms']), 'filter_num_atoms'),
-            ('allowed atoms', lambda ms: filter_allowed_atoms(ms, config['allowed_atoms']), 'filter_allowed_atoms'),
-            ('at least one aromatic atom', filter_aromatic_atom, 'filter_aromatic_atom'),
-            ('ring sizes', lambda ms: filter_ring_sizes(ms, config['allowed_ring_sizes']), 'filter_ring_sizes'),
-            ('fused rings', filter_fused_rings, 'filter_fused_rings'),
-            ('aromatic rings', filter_aromatic_rings, 'filter_aromatic_rings'),
-            ('no linear alkanes', filter_no_linear_alkanes, 'filter_no_linear_alkanes')
+    def apply_filters(self, cfg):
+        steps = [
+            ('zero formal charge', filter_zero_formal_charge),
+            ('num atoms', lambda ms: filter_num_atoms(ms, cfg['min_atoms'], cfg['max_atoms'])),
+            ('allowed atoms', lambda ms: filter_allowed_atoms(ms, cfg['allowed_atoms'])),
+            ('aromatic atom', filter_aromatic_atom),
+            ('ring sizes', lambda ms: filter_ring_sizes(ms, cfg['allowed_ring_sizes'])),
+            ('fused rings', filter_fused_rings),
+            ('aromatic rings', filter_aromatic_rings),
+            ('no linear alkanes', filter_no_linear_alkanes)
         ]
-        for name, func, key in filters:
-            if config.get(key):
-                before = len(self.mols)
+        for name, func in steps:
+            before = len(self.mols)
+            key = f"filter_{name.replace(' ', '_')}"
+            if cfg.get(key, False):
                 self.mols = func(self.mols)
                 after = len(self.mols)
-                print(f"[DEBUG] After '{name}' filter: {before} -> {after}")
-        return self.mols
+                print(f"[DEBUG] Filtro {name}: {before} -> {after}")
 
-    def get_smiles(self):
-        return [Chem.MolToSmiles(m) for m in self.mols]
+    def get_xyz(self):
+        out = []
+        for m in self.mols:
+            conf = m.GetConformer()
+            n = m.GetNumAtoms()
+            lines = [str(n), 'Filtered XYZ from RDKit']
+            for i in range(n):
+                a = m.GetAtomWithIdx(i)
+                pos = conf.GetAtomPosition(i)
+                lines.append(f"{a.GetSymbol()} {pos.x:.6f} {pos.y:.6f} {pos.z:.6f}")
+            out.append("\n".join(lines))
+        self.xyz_blocks = out
+        return out
 
-    def save(self, filename):
-        with open(filename, 'wb') as f:
-            pickle.dump({'smiles': self.get_smiles()}, f)
-
+    def save(self, fn):
+        data = {
+            'smiles': self.raw_smiles,
+            'raw_xyz': self.raw_xyz,
+            'mols': self.mols,
+            'xyz_blocks': self.xyz_blocks
+        }
+        with open(fn, 'wb') as f:
+            pickle.dump(data, f)
+        print(f"[INFO] Guardado: {fn}")
 
 if __name__ == '__main__':
-    # Paths
-    base_dir = '/home/silkenmocha/Documentos/MolGAN-OE62/data/m1507656'
-    input_file = os.path.join(base_dir, 'df_62k.json')
-    output_file = os.path.join(base_dir, 'OE62.txt')
-
-    # Load
-    smiles = load_smiles_from_json(input_file)
-
-    # Filter
-    dataset = FilteredDataset(smiles)
-    dataset.apply_filters(CONFIG)
-
-    # Retrieve SMILES and overwrite
-    dataset.smiles = dataset.get_smiles()
-
-    # Save
-    dataset.save(output_file)
-    print(f"Filtered dataset saved to {output_file}, total molecules: {len(dataset.smiles)}")
     base_dir = '/home/silkenmocha/Documentos/MolGAN-OE62/data/m1507656'
     json_file = os.path.join(base_dir, 'df_62k.json')
-    out_pickle = os.path.join(base_dir, 'OE62.txt')
+    output_file = os.path.join(base_dir, 'OE62_xyz_filtered.pkl')
 
-    smiles = load_smiles_from_json(json_file)
-    ds = FilteredDataset(smiles)
-    ds.apply_filters(CONFIG)
-    ds.save(out_pickle)
-    print(f"Guardadas {len(ds.get_smiles())} SMILES en {out_pickle}.")
+    smiles, xyzs = load_data(json_file)
+    dataset = XYZFilteredDataset(smiles, xyzs)
+    dataset.apply_filters(CONFIG)
+    dataset.get_xyz()
+    dataset.save(output_file)
+    print(f"Total final moléculas: {len(dataset.mols)}")
