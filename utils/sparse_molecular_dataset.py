@@ -6,7 +6,7 @@ from rdkit import Chem
 if __name__ == '__main__':
     from progress_bar import ProgressBar
 else:
-    from utils.progress_bar import ProgressBar
+    from utils.progress_bar import ProgressBar # type: ignore
 
 from datetime import datetime
 
@@ -322,10 +322,10 @@ class SparseMolecularDataset():
 
 
 if __name__ == '__main__':
-    data = SparseMolecularDataset()
-    data.generate('data/gdb9.sdf', filters=lambda x: x.GetNumAtoms() <= 9)
-    data.save('data/gdb9_9nodes.sparsedataset')
+    #data = SparseMolecularDataset()
+    #data.generate('data/gdb9.sdf', filters=lambda x: x.GetNumAtoms() <= 9)
+    #data.save('data/gdb9_9nodes.sparsedataset')
 
-    # data = SparseMolecularDataset()
-    # data.generate('data/qm9_5k.smi', validation=0.00021, test=0.00021)  # , filters=lambda x: x.GetNumAtoms() <= 9)
-    # data.save('data/qm9_5k.sparsedataset')
+    data = SparseMolecularDataset()
+    data.generate('../data/OE62.smi', validation=0.1, test=0.1, size=None)  # , filters=lambda x: x.GetNumAtoms() <= 35)
+    data.save('../data/oe62_9nodes.sparsedataset')

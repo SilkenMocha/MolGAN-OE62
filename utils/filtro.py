@@ -153,10 +153,10 @@ class FilteredDataset:
 
 
 if __name__ == '__main__':
-    # Paths
-    base_dir = '/home/silkenmocha/Documentos/MolGAN-OE62/data/m1507656'
-    input_file = os.path.join(base_dir, 'df_62k.json')
-    output_file = os.path.join(base_dir, 'OE62.txt')
+    # Paths (estás en utils, así que ../data sube al directorio correcto)
+    base_dir = '../data'
+    input_file = os.path.join(base_dir, 'm1507656', 'df_62k.json')
+    output_file = os.path.join(base_dir, 'OE62.smi')  # Guardado en la misma carpeta data/
 
     # Load
     smiles = load_smiles_from_json(input_file)
@@ -165,9 +165,12 @@ if __name__ == '__main__':
     dataset = FilteredDataset(smiles)
     dataset.apply_filters(CONFIG)
 
-    # Retrieve SMILES and overwrite in object
+    # Retrieve SMILES from filtered Mol objects
     dataset.smiles = dataset.get_smiles()
 
-    # Save
-    dataset.save(output_file)
+    # Save SMILES to .smi file (1 SMILES por línea)
+    with open(output_file, 'w') as f:
+        for smi in dataset.smiles:
+            f.write(smi + '\n')
+
     print(f"Filtered dataset saved to {output_file}, total molecules: {len(dataset.smiles)}")
