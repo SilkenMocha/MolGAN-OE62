@@ -10,7 +10,7 @@ mkdir -p "$OUTDIR"
 batch_dims=(128 64)
 las=1
 #las=(0 0.125 0.25 0.375 0.5 0.625 0.75 0.825 1)
-z_dims=8
+z_dims=(8 16 32)
 #z_dims=(8 16 32 64)
 # Parámetros fijos
 dropout=0
@@ -44,7 +44,7 @@ for bd in "${batch_dims[@]}"; do
 
       # 3) Ejecutar entrenamiento y guardar log dentro de la misma carpeta
       log_file="$run_dir/log.txt"
-      python3 example2.py \
+      python3 run_sh.py \
         --batch_dim "$bd" \
         --la        "$la" \
         --z_dim     "$zd" \

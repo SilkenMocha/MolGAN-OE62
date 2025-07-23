@@ -5,18 +5,18 @@ from rdkit import Chem
 
 # Configuration: activate/deactivate filters and set parameters
 CONFIG = {
-    'filter_zero_formal_charge': True,
+    'filter_zero_formal_charge': False,
     'filter_num_atoms': True,
-    'min_atoms': 20,
-    'max_atoms': 35,
+    'min_atoms': 1,
+    'max_atoms': 15,
     'filter_allowed_atoms': True,  # keep only molecules with these atoms
     'allowed_atoms': ['C', 'N', 'O', 'H', 'P', 'S'],
-    'filter_aromatic_atom': True,
-    'filter_ring_sizes': True,
+    'filter_aromatic_atom': False,
+    'filter_ring_sizes': False,
     'allowed_ring_sizes': [5, 6],  # e.g., [5, 6]
-    'filter_fused_rings': True,
+    'filter_fused_rings': False,
     'filter_aromatic_rings': True,
-    'filter_no_linear_alkanes': True
+    'filter_no_linear_alkanes': False
 }
 
 # SMARTS pattern for linear C–C alkane bonds
@@ -156,7 +156,7 @@ if __name__ == '__main__':
     # Paths (estás en utils, así que ../data sube al directorio correcto)
     base_dir = '../data'
     input_file = os.path.join(base_dir, 'm1507656', 'df_62k.json')
-    output_file = os.path.join(base_dir, 'OE62.smi')  # Guardado en la misma carpeta data/
+    output_file = os.path.join(base_dir, 'OE62_2.smi')  # Guardado en la misma carpeta data/
 
     # Load
     smiles = load_smiles_from_json(input_file)

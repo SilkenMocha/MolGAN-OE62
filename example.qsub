@@ -46,7 +46,7 @@ for bd in "${batch_dims[@]}"; do
 
       # 3) Ejecutar entrenamiento y guardar log dentro de la misma carpeta
       log_file="$run_dir/log.txt"
-      python3 example2.py \
+      python3 run_sh.py \
         --batch_dim "$bd" \
         --la        "$la" \
         --z_dim     "$zd" \
