@@ -8,11 +8,11 @@ CONFIG = {
     'filter_zero_formal_charge': False,
     'filter_num_atoms': True,
     'min_atoms': 1,
-    'max_atoms': 15,
+    'max_atoms': 20,
     'filter_allowed_atoms': True,  # keep only molecules with these atoms
     'allowed_atoms': ['C', 'N', 'O', 'H', 'P', 'S'],
     'filter_aromatic_atom': False,
-    'filter_ring_sizes': False,
+    'filter_ring_sizes': True,
     'allowed_ring_sizes': [5, 6],  # e.g., [5, 6]
     'filter_fused_rings': False,
     'filter_aromatic_rings': True,
