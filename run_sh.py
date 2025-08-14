@@ -27,6 +27,8 @@ parser.add_argument("--metric",    type=str,   default="validity,sas", help="Mé
 parser.add_argument("--n_samples", type=int,   default=1000, help="Número de muestras en evaluación")
 parser.add_argument("--z_dim",     type=int,   default=8, help="Dimensión del espacio latente")
 parser.add_argument("--epochs",    type=int,   default=100, help="Épocas de entrenamiento")
+# Nuevo argumento para especificar la carpeta donde guardar el modelo/resultados
+parser.add_argument("--directory", type=str, default="Model_Output", help="Carpeta donde guardar el modelo y salidas")
 args = parser.parse_args()
 
 # Sobreescribe las variables globales con los valores de args
@@ -38,6 +40,7 @@ metric    = args.metric
 n_samples = args.n_samples
 z_dim     = args.z_dim
 epochs    = args.epochs
+directory = args.directory  # <-- usar este valor para guardar
 save_every = 1 # May lead to errors if left as None
 
 data = SparseMolecularDataset()
@@ -220,6 +223,7 @@ trainer = Trainer(model, optimizer, session)
 
 print('Parameters: {}'.format(np.sum([np.prod(e.shape) for e in session.run(tf.trainable_variables())])))
 
+# Usar la carpeta pasada por argumento para guardar cada corrida
 trainer.train(batch_dim=batch_dim,
               epochs=epochs,
               steps=steps,
@@ -230,7 +234,7 @@ trainer.train(batch_dim=batch_dim,
               test_fetch_dict=test_fetch_dict,
               test_feed_dict=test_feed_dict,
               save_every=save_every,
-              directory='Model_Output', # here users need to first create and then specify a folder where to save the model
+              directory=directory,
               _eval_update=_eval_update,
               _test_update=_test_update)
 

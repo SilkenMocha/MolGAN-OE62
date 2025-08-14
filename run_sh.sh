@@ -8,7 +8,7 @@ mkdir -p "$OUTDIR"
 batch_dims=(128)
 las=(1)
 z_dims=(16)
-epochs=(10 50)  # ahora es lista de valores
+epochs=(10 15 20)  # ahora es lista de valores
 
 # Parámetros fijos
 dropout=0
@@ -51,6 +51,7 @@ for bd in "${batch_dims[@]}"; do
           --metric    "$metric" \
           --n_samples "$n_samples" \
           --epochs    "$ep" \
+          --directory "$run_dir" \
           > "$log_file" 2>&1
 
         echo "Corrida $run_id completada: bd=$bd, la=$la, zd=$zd, epochs=$ep (archivos en $run_dir)"
