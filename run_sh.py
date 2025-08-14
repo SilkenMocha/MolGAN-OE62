@@ -253,7 +253,7 @@ def guardar_moleculas_grid(mols, mols_por_fila=5, nombre_archivo="output.png", s
 
     img.save(nombre_archivo)
 
-for i in range(1, 3):
-    mols = samples(data, model, session, model.sample_z(50), sample=True)
-    filename = f"Model_Output/Output_{i}.png"
-    guardar_moleculas_grid(mols, mols_por_fila=10, nombre_archivo=filename)
+#for i in range(1, 3):
+#    mols = samples(data, model, session, model.sample_z(50), sample=True)
+#    filename = f"Model_Output/Output_{i}.png"
+#    guardar_moleculas_grid(mols, mols_por_fila=10, nombre_archivo=filename)
