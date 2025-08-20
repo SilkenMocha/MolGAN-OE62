@@ -7,20 +7,21 @@ mkdir -p "$OUTDIR"
 # Listas de parámetros
 batch_dims=(128)
 las=(1)
-z_dims=(16)
-epochs=(10 15 20)  # ahora es lista de valores
+z_dims=(16 32)
+epochs=(50 100 200 300 400 500 600)  # ahora es lista de valores
 
 # Parámetros fijos
 dropout=0
 n_critic=5
 metric="validity,sas"
-n_samples=1000
+n_samples=5000
 
 run_id=1
 for bd in "${batch_dims[@]}"; do
   for la in "${las[@]}"; do
     for zd in "${z_dims[@]}"; do
       for ep in "${epochs[@]}"; do  # recorrer valores de epochs
+        echo "Corrida $run_id empezada: bd=$bd, la=$la, zd=$zd, epochs=$ep"
 
         # 1) Crear carpeta de la corrida
         run_dir="$OUTDIR/Run_$run_id"
@@ -54,7 +55,7 @@ for bd in "${batch_dims[@]}"; do
           --directory "$run_dir" \
           > "$log_file" 2>&1
 
-        echo "Corrida $run_id completada: bd=$bd, la=$la, zd=$zd, epochs=$ep (archivos en $run_dir)"
+        echo "Corrida $run_id completada: bd=$bd, la=$la, zd=$zd, epochs=$ep"
         run_id=$((run_id + 1))
 
       done
