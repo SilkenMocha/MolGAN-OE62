@@ -16,11 +16,11 @@ n_critic = 5
 metric = 'validity,sas'
 n_samples = 5000
 z_dim = 8
-epochs = 10
+epochs = 15
 save_every = 1 # May lead to errors if left as None
 
 data = SparseMolecularDataset()
-data.load('data/gdb9_9nodes.sparsedataset')
+data.load('data/oe62_9nodes.sparsedataset')
 
 steps = (len(data) // batch_dim)
 

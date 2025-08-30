@@ -7,8 +7,8 @@ mkdir -p "$OUTDIR"
 # Listas de parámetros
 batch_dims=(128)
 las=(1)
-z_dims=(16 32)
-epochs=(50 100 200 300 400 500 600)  # ahora es lista de valores
+z_dims=(8)
+epochs=(50)  # ahora es lista de valores
 
 # Parámetros fijos
 dropout=0
