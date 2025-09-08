@@ -5,7 +5,7 @@ from utils.extract_scores import extract_scores_from_log
 import pandas as pd
 
 #__________________ Configuración global __________________
-RUN_ID = "Run_1"  # <--- Cambia esto para el run que quieras
+RUN_ID = "Run_2"  # <--- Cambia esto para el run que quieras
 ROOT_DIR = os.path.join("Model_Output", RUN_ID)
 GRAPH_DIR = os.path.join(ROOT_DIR, "graficos")
 os.makedirs(GRAPH_DIR, exist_ok=True)

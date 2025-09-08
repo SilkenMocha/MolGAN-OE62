@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Carpeta de salida
-OUTDIR="Model_Output"
+OUTDIR="Model_Output/Prueba_OE62-sdf"
 mkdir -p "$OUTDIR"
 
 # Listas de parámetros
 batch_dims=(128)
 las=(1)
-z_dims=(8)
-epochs=(50)  # ahora es lista de valores
+z_dims=(16)
+epochs=(100 500)  # ahora es lista de valores
 
 # Parámetros fijos
 dropout=0
@@ -16,7 +16,7 @@ n_critic=5
 metric="validity,sas"
 n_samples=5000
 
-run_id=1
+run_id=3
 for bd in "${batch_dims[@]}"; do
   for la in "${las[@]}"; do
     for zd in "${z_dims[@]}"; do
