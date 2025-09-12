@@ -327,8 +327,8 @@ if __name__ == '__main__':
 #    data.save('data/oe62_9nodes.sparsedataset')
 
     data = SparseMolecularDataset()
-    data.generate('data/gdb9.sdf', filters=lambda x: x.GetNumAtoms() <= 9)
-    data.save('data/gdb9_9nodes.sparsedataset')
+    data.generate('data/OE62_20.smi', filters=lambda x: x.GetNumAtoms() <= 20)
+    data.save('data/0e62_smilesnodes.sparsedataset')
 
 #    data = SparseMolecularDataset()
 #    data.generate('../data/OE62_2.smi', validation=0.1, test=0.1, size=None)  # , filters=lambda x: x.GetNumAtoms() <= 35)

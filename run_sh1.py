@@ -175,14 +175,14 @@ model = GraphGANModel(data.vertexes,
                       z_dim,
                       decoder_units=(128, 256, 512),
                       discriminator_units=((128, 64), 128, (128, 64)),
-                      decoder=decoder_adj,
+                      decoder=decoder_rnn,
                       discriminator=encoder_rgcn,
                       soft_gumbel_softmax=False,
                       hard_gumbel_softmax=False,
-                      batch_discriminator=False)
+                      batch_discriminator=True)
 
 # optimizer
-optimizer = GraphGANOptimizer(model, learning_rate=1e-3, feature_matching=False)
+optimizer = GraphGANOptimizer(model, learning_rate=1e-3, feature_matching=True)
 
 # session
 session = tf.Session()

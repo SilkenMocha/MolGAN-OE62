@@ -5,7 +5,7 @@ from rdkit import Chem
 CONFIG = {
     'filter_zero_formal_charge': False,
     'filter_num_atoms': True,
-    'min_atoms': 1,
+    'min_atoms': 10,
     'max_atoms': 20,
     'filter_allowed_atoms': True,
     'allowed_atoms': ['C', 'N', 'O', 'H', 'P', 'S'],
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     # Paths
     base_dir = '../data'
     input_file = os.path.join(base_dir, 'OE62.sdf')
-    output_file = os.path.join(base_dir, 'OE62_filtrado.sdf')
+    output_file = os.path.join(base_dir, 'OE62_10-20.sdf')
 
     # Load molecules
     mols = load_molecules_from_sdf(input_file)

@@ -156,7 +156,7 @@ if __name__ == '__main__':
     # Paths (estás en utils, así que ../data sube al directorio correcto)
     base_dir = '../data'
     input_file = os.path.join(base_dir, 'm1507656', 'df_62k.json')
-    output_file = os.path.join(base_dir, 'OE62_2.smi')  # Guardado en la misma carpeta data/
+    output_file = os.path.join(base_dir, 'OE62_20.smi')  # Guardado en la misma carpeta data/
 
     # Load
     smiles = load_smiles_from_json(input_file)
