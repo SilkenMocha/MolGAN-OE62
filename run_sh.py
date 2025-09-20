@@ -44,7 +44,7 @@ directory = args.directory  # <-- usar este valor para guardar
 save_every = 1 # May lead to errors if left as None
 
 data = SparseMolecularDataset()
-data.load('data/oe62_9nodes.sparsedataset')
+data.load('data/oe62_sdfnodes.sparsedataset')
 
 steps = (len(data) // batch_dim)
 
@@ -203,16 +203,16 @@ model = GraphGANModel(data.vertexes,
                       data.bond_num_types,
                       data.atom_num_types,
                       z_dim,
-                      decoder_units=(128, 256, 512),
-                      discriminator_units=((128, 64), 128, (128, 64)),
+                      decoder_units=(256, 512, 512),
+                      discriminator_units=((256, 128), 256, (256, 128)),
                       decoder=decoder_adj,
                       discriminator=encoder_rgcn,
                       soft_gumbel_softmax=False,
                       hard_gumbel_softmax=False,
-                      batch_discriminator=False)
+                      batch_discriminator=True)
 
 # optimizer
-optimizer = GraphGANOptimizer(model, learning_rate=1e-3, feature_matching=False)
+optimizer = GraphGANOptimizer(model, learning_rate=1e-4, feature_matching=True)
 
 # session
 session = tf.Session()
