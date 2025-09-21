@@ -254,21 +254,21 @@ def load_and_restore_model(run_dir, z_dim=None, force_meta=None):
         final['z_dim'] = 8
 
     # decoder_units: trainer_meta > config? (not usually in config.txt) > default
-    final['decoder_units'] = trainer_meta.get('decoder_units', (128, 256, 512))
+    final['decoder_units'] = trainer_meta.get('decoder_units', (256, 512, 512))
 
-    final['discriminator_units'] = trainer_meta.get('discriminator_units', ((128, 64), 128, (128, 64)))
+    final['discriminator_units'] = trainer_meta.get('discriminator_units', ((256, 128), 256, (256, 128)))
 
     # decoder / discriminator selection
     decoder_name = trainer_meta.get('decoder_name', cfg.get('decoder', None))
     discriminator_name = trainer_meta.get('discriminator_name', cfg.get('discriminator', None))
 
-    final['decoder_fn'] = resolve_decoder_decodername(decoder_name) or decoder_adj
+    final['decoder_fn'] = resolve_decoder_decodername(decoder_name) or decoder_dot
     final['discriminator_fn'] = resolve_discriminator_name(discriminator_name) or encoder_rgcn
 
     # boolean flags
     final['soft_gumbel_softmax'] = trainer_meta.get('soft_gumbel_softmax', False)
     final['hard_gumbel_softmax'] = trainer_meta.get('hard_gumbel_softmax', False)
-    final['batch_discriminator'] = trainer_meta.get('batch_discriminator', False)
+    final['batch_discriminator'] = trainer_meta.get('batch_discriminator', True)
 
     # log what we inferred
     print("Metadata inferida para reconstrucción del modelo:")
@@ -292,7 +292,7 @@ def load_and_restore_model(run_dir, z_dim=None, force_meta=None):
                           batch_discriminator=final['batch_discriminator'])
 
     # Crear optimizador compatible (para restaurar todas las variables si están en el checkpoint)
-    optimizer = GraphGANOptimizer(model, learning_rate=1e-3, feature_matching=False)
+    optimizer = GraphGANOptimizer(model, learning_rate=1e-4, feature_matching=True)
 
     # Crear sesión y restaurar
     session = tf.Session()
