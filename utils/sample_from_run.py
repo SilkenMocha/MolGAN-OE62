@@ -233,7 +233,7 @@ def load_and_restore_model(run_dir, z_dim=None, force_meta=None):
     """
     # dataset (usa la misma ruta utilizada en run_sh.py)
     data = SparseMolecularDataset()
-    data.load('data/oe62_9nodes.sparsedataset')
+    data.load('data/oe62_sdfnodes.sparsedataset')
 
     # 1) leer config.txt
     cfg = parse_config(os.path.join(run_dir, 'config.txt'))
@@ -262,7 +262,7 @@ def load_and_restore_model(run_dir, z_dim=None, force_meta=None):
     decoder_name = trainer_meta.get('decoder_name', cfg.get('decoder', None))
     discriminator_name = trainer_meta.get('discriminator_name', cfg.get('discriminator', None))
 
-    final['decoder_fn'] = resolve_decoder_decodername(decoder_name) or decoder_rnn
+    final['decoder_fn'] = resolve_decoder_decodername(decoder_name) or decoder_dot
     final['discriminator_fn'] = resolve_discriminator_name(discriminator_name) or encoder_rgcn
 
     # boolean flags

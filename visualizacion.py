@@ -3,10 +3,11 @@ import matplotlib.pyplot as plt
 from utils.sample_from_run import sample_from_run
 from utils.extract_scores import extract_scores_from_log
 import pandas as pd
+from rdkit import Chem
 
 #__________________ Configuración global __________________
-RUN_ID = "Run_4"  # <--- Cambia esto para el run que quieras
-ROOT_DIR = os.path.join("Model_Output/Neuronas/Arch_7/", RUN_ID)
+RUN_ID = "Run_3"  # <--- Cambia esto para el run que quieras
+ROOT_DIR = os.path.join("Model_Output/Neuronas/Arch_8/", RUN_ID)
 GRAPH_DIR = os.path.join(ROOT_DIR, "graficos")
 os.makedirs(GRAPH_DIR, exist_ok=True)
 
@@ -42,3 +43,12 @@ num_valid = len([m for m in mols if m is not None])
 print(f"Generadas {num_valid} moléculas válidas. Grid guardado en {PNG_PATH}")
 print(f"CSV de scores guardado en {CSV_PATH}")
 print(f"Gráficas guardadas en {GRAPH_DIR}/")
+
+#___________ Guardar moléculas generadas en SDF __________
+SDF_PATH = os.path.join(GRAPH_DIR, "sampled.sdf")
+writer = Chem.SDWriter(SDF_PATH)
+for m in mols:
+    if m is not None:
+        writer.write(m)
+writer.close()
+print(f"SDF guardado en {SDF_PATH}")
