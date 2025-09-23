@@ -233,7 +233,7 @@ def load_and_restore_model(run_dir, z_dim=None, force_meta=None):
     """
     # dataset (usa la misma ruta utilizada en run_sh.py)
     data = SparseMolecularDataset()
-    data.load('data/oe62_sdfnodes.sparsedataset')
+    data.load('data/oe62_35sdfnodes.sparsedataset')
 
     # 1) leer config.txt
     cfg = parse_config(os.path.join(run_dir, 'config.txt'))

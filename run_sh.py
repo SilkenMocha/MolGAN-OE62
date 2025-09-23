@@ -44,7 +44,7 @@ directory = args.directory  # <-- usar este valor para guardar
 save_every = 1 # May lead to errors if left as None
 
 data = SparseMolecularDataset()
-data.load('data/oe62_sdfnodes.sparsedataset')
+data.load('data/oe62_35sdfnodes.sparsedataset')
 
 steps = (len(data) // batch_dim)
 
