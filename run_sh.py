@@ -205,9 +205,9 @@ model = GraphGANModel(data.vertexes,
                       z_dim,
                       decoder_units=(256, 512, 512),
                       discriminator_units=((256, 128), 256, (256, 128)),
-                      decoder=decoder_dot,
+                      decoder=decoder_rnn,
                       discriminator=encoder_rgcn,
-                      soft_gumbel_softmax=False,
+                      soft_gumbel_softmax=True,
                       hard_gumbel_softmax=False,
                       batch_discriminator=True)
 

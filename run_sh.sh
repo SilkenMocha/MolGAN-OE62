@@ -1,18 +1,18 @@
 #!/bin/bash
 
 # Carpeta de salida
-OUTDIR="Model_Output/Neuronas/Arch_5"
+OUTDIR="Model_Output/Neuronas/Arch_7"
 mkdir -p "$OUTDIR"
-cp run_sh.py /home/erick/MolGAN-OE62/Model_Output/Neuronas/Arch_4
+cp run_sh.py /home/erick/MolGAN-OE62/Model_Output/Neuronas/Arch_7
 
 # Listas de parámetros
 batch_dims=(128)
 las=(1)
-z_dims=(16 32)
-epochs=(125)  # ahora es lista de valores
+z_dims=(16 32 64)
+epochs=(100)  # ahora es lista de valores
 
 # Parámetros fijos
-dropout=0.2
+dropout=0
 n_critic=5
 metric="validity,sas"
 n_samples=5000

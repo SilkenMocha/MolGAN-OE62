@@ -262,11 +262,11 @@ def load_and_restore_model(run_dir, z_dim=None, force_meta=None):
     decoder_name = trainer_meta.get('decoder_name', cfg.get('decoder', None))
     discriminator_name = trainer_meta.get('discriminator_name', cfg.get('discriminator', None))
 
-    final['decoder_fn'] = resolve_decoder_decodername(decoder_name) or decoder_dot
+    final['decoder_fn'] = resolve_decoder_decodername(decoder_name) or decoder_rnn
     final['discriminator_fn'] = resolve_discriminator_name(discriminator_name) or encoder_rgcn
 
     # boolean flags
-    final['soft_gumbel_softmax'] = trainer_meta.get('soft_gumbel_softmax', False)
+    final['soft_gumbel_softmax'] = trainer_meta.get('soft_gumbel_softmax', True)
     final['hard_gumbel_softmax'] = trainer_meta.get('hard_gumbel_softmax', False)
     final['batch_discriminator'] = trainer_meta.get('batch_discriminator', True)
 
