@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Carpeta de salida
-OUTDIR="Model_Output/Neuronas/Arch_9"
+OUTDIR="Model_Output/Neuronas/Arch_10"
 mkdir -p "$OUTDIR"
-cp run_sh.py /home/erick/MolGAN-OE62/Model_Output/Neuronas/Arch_9
+cp run_sh.py /home/erick/MolGAN-OE62/Model_Output/Neuronas/Arch_10
 
 # Listas de parámetros
 batch_dims=(128)

@@ -54,6 +54,7 @@ def train_fetch_dict(i, steps, epoch, epochs, min_epochs, model, optimizer):
     b = [optimizer.train_step_V] if i % n_critic == 0 and la < 1 else []
     return a + b
 
+
 def train_feed_dict(i, steps, epoch, epochs, min_epochs, model, optimizer, batch_dim):
     mols, _, _, a, x, _, _, _, _ = data.next_train_batch(batch_dim)
     embeddings = model.sample_z(batch_dim)
@@ -206,7 +207,7 @@ model = GraphGANModel(data.vertexes,
                       discriminator_units=((256, 128), 256, (256, 128)),
                       decoder=decoder_dot,
                       discriminator=encoder_rgcn,
-                      soft_gumbel_softmax=True,
+                      soft_gumbel_softmax=False,
                       hard_gumbel_softmax=False,
                       batch_discriminator=True)
 
@@ -236,3 +237,27 @@ trainer.train(batch_dim=batch_dim,
               directory=directory,
               _eval_update=_eval_update,
               _test_update=_test_update)
+
+
+def guardar_moleculas_grid(mols, mols_por_fila=5, nombre_archivo="output.png", subImgSize=(200, 200)):
+    """
+    Genera y guarda una imagen de moléculas en una grilla como imagen PNG.
+    """
+    mols = [m for m in mols if m is not None]
+
+    img = Draw.MolsToGridImage(
+        mols,
+        molsPerRow=mols_por_fila,
+        subImgSize=subImgSize,
+        useSVG=False,
+        returnPNG=False
+    )
+
+    os.makedirs(os.path.dirname(nombre_archivo), exist_ok=True)
+
+    img.save(nombre_archivo)
+
+#for i in range(1, 3):
+#    mols = samples(data, model, session, model.sample_z(50), sample=True)
+#    filename = f"Model_Output/Output_{i}.png"
+#    guardar_moleculas_grid(mols, mols_por_fila=10, nombre_archivo=filename)
