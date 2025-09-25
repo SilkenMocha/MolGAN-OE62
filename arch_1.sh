@@ -6,11 +6,11 @@ mkdir -p "$ARCHDIR"
 cp "$ARCHDIR/arch_config.txt" "$ARCHDIR"
 
 # Listas de parámetros (modifica según tus necesidades)
-epochs_list=(50)
-dropout_list=(0.0 0.2 0.5)
+epochs_list=(20)
+dropout_list=(0.0)
 learning_rate_list=(1e-4)
 batch_dim_list=(128)
-z_dim_list=(16 32)
+z_dim_list=(8 16 32)
 n_samples_list=(5000)
 n_critic_list=(2)
 la_list=(1)
