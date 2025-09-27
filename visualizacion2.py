@@ -43,27 +43,27 @@ def process_run(run_dir, arch_config_path, n_samples=50, mols_per_row=8):
         plt.close()
 
     # 5. Generar moléculas y grid
-    png_path = os.path.join(graph_dir, "sampled.png")
-    mols, smiles, meta = sample_from_run(
-        run_dir,
-        model_config=model_config,
-        n_samples=n_samples,
-        mols_per_row=mols_per_row,
-        out_png=png_path
-    )
-    num_valid = len([m for m in mols if m is not None])
-    print(f"Generadas {num_valid} moléculas válidas. Grid guardado en {png_path}")
-    print(f"CSV de scores guardado en {csv_path}")
-    print(f"Gráficas guardadas en {graph_dir}/")
+#    png_path = os.path.join(graph_dir, "sampled.png")
+#    mols, smiles, meta = sample_from_run(
+#        run_dir,
+#        model_config=model_config,
+#        n_samples=n_samples,
+#        mols_per_row=mols_per_row,
+#        out_png=png_path
+#    )
+#    num_valid = len([m for m in mols if m is not None])
+#    print(f"Generadas {num_valid} moléculas válidas. Grid guardado en {png_path}")
+#    print(f"CSV de scores guardado en {csv_path}")
+#    print(f"Gráficas guardadas en {graph_dir}/")
 
     # 6. Guardar moléculas generadas en SDF
-    sdf_path = os.path.join(graph_dir, "sampled.sdf")
-    writer = Chem.SDWriter(sdf_path)
-    for m in mols:
-        if m is not None:
-            writer.write(m)
-    writer.close()
-    print(f"SDF guardado en {sdf_path}")
+#    sdf_path = os.path.join(graph_dir, "sampled.sdf")
+#    writer = Chem.SDWriter(sdf_path)
+#    for m in mols:
+#        if m is not None:
+#            writer.write(m)
+#    writer.close()
+#    print(f"SDF guardado en {sdf_path}")
 
 def main():
     # ---------------- CONFIGURACIÓN PRINCIPAL ----------------
